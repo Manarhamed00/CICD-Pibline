@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fetch User Info</title>
+</head>
+<body>
+    <h1>Fetch User Info</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="unique_id">Unique ID:</label>
+        <input type="text" id="unique_id" name="unique_id" required ><br>
+
+        <input type="submit" value="submit">
+
+    </form>
+
+    <a href="{% url 'add_userinfo' %}"><button>Register</button></a>
+</body>
+</html>
