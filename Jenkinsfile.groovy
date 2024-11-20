@@ -9,7 +9,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 // قم بسحب الكود من GitHub
-                git 'https://github.com/Manarhamed00/CICD-Pipeline'
+                git branch: 'main', url: 'https://github.com/Manarhamed00/CICD-Pipeline'
             }
         }
         stage('Build Docker Image') {
