@@ -39,7 +39,7 @@ pipeline {
                 script {
                     // التأكد من الاتصال بـ Kubernetes باستخدام kubectl
                     sh '''
-                    kubectl apply -f my-project/blue-deployment.yaml
+                    kubectl apply -f blue-deployment.yaml
                     '''
                 }
             }
