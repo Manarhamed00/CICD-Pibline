@@ -1,40 +1,48 @@
 pipeline {
     agent any
-    
+    environment {
+        DOCKER_USERNAME = 'manarhamed01'
+        DOCKER_PASSWORD = 'manar@docker'
+        IMAGE_NAME = 'django-app'
+    }
     stages {
-        stage('Checkout') {
+        stage('Clone Repository') {
             steps {
-                script {
-                    // Checkout from Git
-                    checkout([$class: 'GitSCM', branches: [[name: 'develop1']], userRemoteConfigs: [[url: 'https://github.com/Manarhamed00/jenkens--labs']]])
-                }
+                // قم بسحب الكود من GitHub
+                git 'https://github.com/Manarhamed00/CICD-Pipeline'
             }
         }
-        stage('Install Dependencies') {
+        stage('Build Docker Image') {
             steps {
-                // Use conditional execution based on the operating system
                 script {
-                    if (isUnix()) {
-                        sh 'pip install -r myproject/requirements.txt'
-                    } else {
-                        bat 'pip install -r myproject/requirements.txt'
+                    // بناء الـ Docker Image من داخل مجلد المشروع
+                    dir('my-project') {
+                        sh 'docker build -t ${DOCKER_USERNAME}/${IMAGE_NAME}:${BUILD_NUMBER} .'
                     }
                 }
             }
         }
-        stage('Run Tests') {
+        stage('Push Docker Image') {
             steps {
-                // Use conditional execution based on the operating system
                 script {
-                    if (isUnix()) {
-                        sh 'python myproject/manage.py test'
-                    } else {
-                        bat 'python myproject/manage.py test'
-                    }
+                    // تسجيل الدخول إلى Docker Hub
+                    sh '''
+                    docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+                    docker push ${DOCKER_USERNAME}/${IMAGE_NAME}:${BUILD_NUMBER}
+                    '''
+                }
+            }
+        }
+      
+        stage('Deploy to Kubernetes Cluster') {
+            steps {
+                script {
+                    // التأكد من الاتصال بـ Kubernetes باستخدام kubectl
+                    sh '''
+                    kubectl apply -f my-project/blue-deployment.yaml
+                    '''
                 }
             }
         }
     }
 }
-
-
