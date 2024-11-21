@@ -37,10 +37,9 @@ pipeline {
         stage('Deploy to Kubernetes Cluster') {
             steps {
                 script {
-                    // التأكد من الاتصال بـ Kubernetes باستخدام kubectl
-                    sh '''
-                    kubectl apply -f blue-deployment.yaml
-                    '''
+                     docker.image('bitnami/kubectl').inside {
+                        sh "kubectl apply -f deployment.yaml"
+                    }
                 }
             }
         }
