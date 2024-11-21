@@ -16,7 +16,7 @@ pipeline {
             steps {
                 script {
                     // بناء الـ Docker Image من داخل مجلد المشروع
-                    dir('my-project') {
+                    dir('myproject') {
                         sh 'docker build -t ${DOCKER_USERNAME}/${IMAGE_NAME}:${BUILD_NUMBER} .'
                     }
                 }
