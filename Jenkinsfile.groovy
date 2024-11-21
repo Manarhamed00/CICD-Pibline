@@ -1,8 +1,7 @@
 pipeline {
     agent any
     environment {
-        DOCKER_USERNAME = 'manarhamed01'
-        DOCKER_PASSWORD = 'manar@docker'
+        DOCKER_CREDENTIALS = credentials('dockerhub-credentials')
         IMAGE_NAME = 'django-app'
     }
     stages {
@@ -15,9 +14,11 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // بناء الـ Docker Image من داخل مجلد المشروع
+                           // بناء الـ Docker Image من داخل مجلد المشروع
                     dir('myproject') {
-                        sh 'docker build -t ${DOCKER_USERNAME}/${IMAGE_NAME}:${BUILD_NUMBER} .'
+                        docker.withRegistry('https://registry.hub.docker.com', DOCKER_CREDENTIALS) {
+                            sh 'docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} .'
+                        }
                     }
                 }
             }
@@ -25,11 +26,11 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    // تسجيل الدخول إلى Docker Hub
-                    sh '''
-                    docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
-                    docker push ${DOCKER_USERNAME}/${IMAGE_NAME}:${BUILD_NUMBER}
-                    '''
+                      
+                    docker.withRegistry('https://registry.hub.docker.com', DOCKER_CREDENTIALS) {
+                       
+                        sh 'docker push ${IMAGE_NAME}:${BUILD_NUMBER}'
+                    }
                 }
             }
         }
