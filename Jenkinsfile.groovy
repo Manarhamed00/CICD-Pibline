@@ -34,11 +34,9 @@ pipeline {
         stage('Deploy to Kubernetes Cluster') {
             steps {
                 script {
-                    if (fileExists('blue-deployment.yaml')) {
+                        sh 'kubectl cluster-info'
                         sh 'kubectl apply -f blue-deployment.yaml'
-                    } else {
-                        error("Deployment file not found: blue-deployment.yaml")
-                    }
+                   
                 }
             }
         }
