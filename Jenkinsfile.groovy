@@ -35,11 +35,9 @@ pipeline {
             steps {
                 script {
 
-                    withKubeConfig([credentialsId: 'config_file']) {
                        sh 'kubectl cluster-info'
                        sh 'kubectl apply -f blue-deployment.yaml'  
-                    }
-                   
+                
                 }
             }
         }
