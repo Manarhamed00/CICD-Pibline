@@ -38,9 +38,9 @@ pipeline {
         stage('Deploy to Kubernetes Cluster') {
             steps {
                 script {
-                     docker.image('bitnami/kubectl').inside {
+                    
                         sh "kubectl apply -f deployment.yaml"
-                    }
+                    
                 }
             }
         }
