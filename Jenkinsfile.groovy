@@ -2,6 +2,7 @@ pipeline {
     agent any
     environment {
         IMAGE_NAME = 'manarhamed01/django-app' 
+        DOCKER_REGISTRY = 'https://registry.hub.docker.com'
     }
     stages {
         stage('Clone Repository') {
@@ -13,8 +14,8 @@ pipeline {
             steps {
                 script {
                     dir('myproject') {
-                        docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
-                            sh 'docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} .'
+                        docker.withRegistry(DOCKER_REGISTRY, 'dockerhub-credentials') {
+                            sh "docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} ."
                         }
                     }
                 }
@@ -23,8 +24,9 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
-                        sh 'docker push ${IMAGE_NAME}:${BUILD_NUMBER}'
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh "echo \$DOCKER_PASSWORD | docker login -u \$DOCKER_USERNAME --password-stdin"
+                        sh "docker push ${IMAGE_NAME}:${BUILD_NUMBER}"
                     }
                 }
             }
@@ -32,7 +34,11 @@ pipeline {
         stage('Deploy to Kubernetes Cluster') {
             steps {
                 script {
-                    sh 'kubectl apply -f blue-deployment.yaml'
+                    if (fileExists('blue-deployment.yaml')) {
+                        sh 'kubectl apply -f blue-deployment.yaml'
+                    } else {
+                        error("Deployment file not found: blue-deployment.yaml")
+                    }
                 }
             }
         }
